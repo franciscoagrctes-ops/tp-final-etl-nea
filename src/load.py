@@ -144,26 +144,7 @@ def guardar_csv(filas, carpeta=None, nombre=None):
     return ruta
 
 
-def construir_resumen(filas, detalle_checks):
-    """Construye el diccionario con la ficha técnica del dataset."""
-    """Arma el resumen del proceso: metadatos + estadísticas descriptivas.
 
-    Este JSON es la "ficha técnica" del dataset: quien lo reciba tiene que
-    poder saber de dónde salió, cuándo y qué contiene, SIN abrir el CSV.
-
-    CONTRATO: devolvé un dict que incluya al menos estas claves:
-
-        dataset            (str)  nombre descriptivo
-        fuente             (str)  de dónde salieron los datos
-        unidad             (str)  "millones de dólares FOB"
-        generado           (str)  fecha y hora de esta corrida
-        filas              (int)
-        columnas           (int)
-        periodo            (dict) {"desde": anio_min, "hasta": anio_max}
-        provincias         (list) ordenada
-        valor_musd         (dict) {"minimo":…, "maximo":…, "promedio":…}
-        quality_checks     (list) el detalle_checks que recibís
-    """
 def construir_resumen(filas, detalle_checks):
     """Construye el diccionario con la ficha técnica del dataset."""
     valores = [f["valor_musd"] for f in filas]

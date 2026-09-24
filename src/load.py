@@ -59,11 +59,9 @@ def chequear_unicidad(filas):
 
     Debe devolver (bool, mensaje), igual que los checks de arriba.
     """
-    # TODO 9 --------------------------------------------------------------
-    # Pista: es el patrón del set que viste en la Clase 3. Armá la lista de
-    # claves (una tupla por fila) y compará len(lista) con len(set(lista)).
-    raise NotImplementedError("TODO 9: implementá chequear_unicidad()")
-    # ---------------------------------------------------------------------
+    claves = [(f["provincia"], f["anio"], f["destino"]) for f in filas]
+    ok = len(claves) == len(set(claves))
+    return ok, f"unicidad: {len(claves)} filas, {len(set(claves))} claves únicas"
 
 
 def chequear_rangos(filas):
@@ -72,11 +70,12 @@ def chequear_rangos(filas):
     Un valor negativo o mayor a config.VALOR_MAXIMO_RAZONABLE es
     sospechoso: no existen exportaciones negativas.
     """
-    # TODO 10 -------------------------------------------------------------
-    # Pista: una comprensión de lista con la condición al final te da
-    # directamente las filas fuera de rango; después mirás cuántas son.
-    raise NotImplementedError("TODO 10: implementá chequear_rangos()")
-    # ---------------------------------------------------------------------
+    fuera_de_rango = [
+        f for f in filas
+        if f["valor_musd"] < 0 or f["valor_musd"] > config.VALOR_MAXIMO_RAZONABLE
+    ]
+    ok = len(fuera_de_rango) == 0
+    return ok, f"rangos: {len(fuera_de_rango)} filas fuera de rango razonable"
 
 
 def chequear_cobertura(filas):
@@ -164,28 +163,45 @@ def construir_resumen(filas, detalle_checks):
         valor_musd         (dict) {"minimo":…, "maximo":…, "promedio":…}
         quality_checks     (list) el detalle_checks que recibís
     """
-    # TODO 11 -------------------------------------------------------------
-    # Pistas:
-    #   - Para la lista de valores: [f["valor_musd"] for f in filas]
-    #   - min(), max() y sum()/len() ya los conocés.
-    #   - Para provincias únicas y ordenadas: sorted({f["provincia"] for f in filas})
-    #   - Para la fecha: datetime.now().strftime("%Y-%m-%d %H:%M")
-    #   - Podés agregar más claves si querés (suma puntos en la rúbrica).
-    raise NotImplementedError("TODO 11: implementá construir_resumen()")
-    # ---------------------------------------------------------------------
+def construir_resumen(filas, detalle_checks):
+    valores = [f["valor_musd"] for f in filas]
+    anios = [f["anio"] for f in filas]
+
+    resumen = {
+        "dataset": "Exportaciones del NEA por provincia y destino",
+        "fuente": "API de Series de Tiempo (datos.gob.ar / INDEC)",
+        "unidad": "millones de dólares FOB",
+        "generado": datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "filas": len(filas),
+        "columnas": len(COLUMNAS),
+        "periodo": {"desde": min(anios), "hasta": max(anios)},
+        "provincias": sorted({f["provincia"] for f in filas}),
+        "valor_musd": {
+            "minimo": round(min(valores), 2),
+            "maximo": round(max(valores), 2),
+            "promedio": round(sum(valores) / len(valores), 2),
+        },
+        "quality_checks": detalle_checks,
+    }
+    return resumen
 
 
 def guardar_resumen(resumen, carpeta=None, nombre=None):
     """Escribe el resumen en JSON, legible por humanos y por programas.
 
-    Acordate de los dos argumentos que vimos: ensure_ascii=False para que
+Acordate de los dos argumentos que vimos: ensure_ascii=False para que
     las tildes se guarden bien, e indent=2 para que sea legible.
     """
-    # TODO 12a ------------------------------------------------------------
-    # Muy parecido a guardar_csv(), pero con json.dump().
-    raise NotImplementedError("TODO 12a: implementá guardar_resumen()")
-    # ---------------------------------------------------------------------
+    carpeta = carpeta or config.DIR_PROCESSED
+    nombre = nombre or config.ARCHIVO_SALIDA_JSON
+    os.makedirs(carpeta, exist_ok=True)
+    ruta = os.path.join(carpeta, nombre)
 
+    with open(ruta, "w", encoding="utf-8") as f:
+        json.dump(resumen, f, ensure_ascii=False, indent=2)
+
+    logging.info("  JSON: %s", ruta)
+    return ruta
 
 def escribir_log_corrida(resumen, carpeta=None, nombre=None):
     """Agrega UNA línea al historial del pipeline.
@@ -195,10 +211,21 @@ def escribir_log_corrida(resumen, carpeta=None, nombre=None):
 
         2026-08-02 14:30 | OK | 1408 filas | 1993-2024
     """
-    # TODO 12b ------------------------------------------------------------
-    raise NotImplementedError("TODO 12b: implementá escribir_log_corrida()")
-    # ---------------------------------------------------------------------
+    carpeta = carpeta or config.DIR_LOGS
+    nombre = nombre or config.ARCHIVO_LOG
+    os.makedirs(carpeta, exist_ok=True)
+    ruta = os.path.join(carpeta, nombre)
 
+    linea = (
+        f"{resumen['generado']} | OK | {resumen['filas']} filas | "
+        f"{resumen['periodo']['desde']}-{resumen['periodo']['hasta']}\n"
+    )
+
+    with open(ruta, "a", encoding="utf-8") as f:
+        f.write(linea)
+
+    logging.info("  log: %s", ruta)
+    return ruta
 
 def cargar(filas):
     """CONTRATO: recibe las filas finales; valida y persiste las 3 salidas.
@@ -215,3 +242,4 @@ def cargar(filas):
 
     logging.info("LOAD OK")
     return resumen
+    

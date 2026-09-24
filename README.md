@@ -1,26 +1,33 @@
 # Pipeline Exportaciones del NEA
 
 ## Qué hace
-Este pipeline ETL descarga datos de exportaciones de Chaco, Corrientes, Formosa y Misiones (1993–2024) desde la API de Series de Tiempo de datos.gob.ar (INDEC), los transforma en un dataset analítico único y los guarda en disco junto con una ficha técnica y un registro decada corrida. Asimismo,combina dos fuentes: exportaciones por país de destino (dataset 357.1) y exportaciones por rubro (dataset 350.1), y las une para obtener, para cada fila (provincia, destino, año), el valor exportado, su participación relativa, la variación interanual, el ranking del destino ese año y el rubro principal de la provincia.
+Este pipeline ETL descarga datos de exportaciones de Chaco, Corrientes, Formosa y Misiones (1993–2024) desde la API de Series de Tiempo de datos.gob.ar (INDEC), los transforma en un dataset analítico único y los guarda en disco junto con una ficha técnica y un registro de cada corrida. Asimismo, combina dos fuentes: exportaciones por país de destino (dataset 357.1) y exportaciones por rubro (dataset 350.1), y las une para obtener, para cada fila (provincia, destino, año), el valor exportado, su participación relativa, la variación interanual, el ranking del destino ese año y el rubro principal de la provincia.
 
 ## Cómo instalarlo y ejecutarlo
-
 1. Cloná el repositorio y entrá a la carpeta:
 
+```
 git clone https://github.com/franciscoagrctes-ops/tp-final-etl-nea.git
 cd tp-final-etl-nea
+```
 
 2. Creá y activá el entorno virtual:
 
+```
 python -m venv .venv
 .venv\Scripts\activate
-
+```
 3. Instalá las dependencias:
 
+```
 pip install -r requirements.txt
+```
+
 4. Corré el pipeline completo:
 
+```
 python src/main.py
+```
 
 ## De dónde salen los datos
 

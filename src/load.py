@@ -145,6 +145,7 @@ def guardar_csv(filas, carpeta=None, nombre=None):
 
 
 def construir_resumen(filas, detalle_checks):
+    """Construye el diccionario con la ficha técnica del dataset."""
     """Arma el resumen del proceso: metadatos + estadísticas descriptivas.
 
     Este JSON es la "ficha técnica" del dataset: quien lo reciba tiene que
@@ -164,6 +165,7 @@ def construir_resumen(filas, detalle_checks):
         quality_checks     (list) el detalle_checks que recibís
     """
 def construir_resumen(filas, detalle_checks):
+    """Construye el diccionario con la ficha técnica del dataset."""
     valores = [f["valor_musd"] for f in filas]
     anios = [f["anio"] for f in filas]
 
